@@ -2,7 +2,11 @@
 #-*- coding:utf-8 -*-
 
 import rospy
+<<<<<<< HEAD
 import cv2
+=======
+import cv
+>>>>>>> a7e0a81f905a89db0839db739e472fc8050f8cd8
 from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
 
