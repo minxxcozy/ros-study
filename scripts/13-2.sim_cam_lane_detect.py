@@ -41,8 +41,8 @@ class Lane_sub:
                     [color1, color1, color1, color1, color1],
                     [color1, color1, color1, color1, color1]], np.uint8)
         
-        cv2.nameWindow("img", cv2.WINDOW_NORMAL)
-        cv2.nameWindow("img1", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("img1", cv2.WINDOW_NORMAL)
         cv2.imshow("img", img)
         cv2.imshow("img1", img1)
         cv2.waitKey(1)  
@@ -54,12 +54,12 @@ class Lane_sub:
         b, g, r =cv2.split(img)
         # img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         img_bgr = cv2.merge(b, g, r)
-        cv2.nameWindow("img", cv2.WINDOW_NORMAL)
-        cv2.nameWindow("img_bgr", cv2.WINDOW_NORMAL)
-        cv2.nameWindow("b", cv2.WINDOW_NORMAL)
-        cv2.nameWindow("g", cv2.WINDOW_NORMAL)
-        cv2.nameWindow("r", cv2.WINDOW_NORMAL)
-        # cv2.nameWindow("img", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("img_bgr", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("b", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("g", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("r", cv2.WINDOW_NORMAL)
+        # cv2.namedWindow("img", cv2.WINDOW_NORMAL)
         cv2.imshow("img", img)
         cv2.imshow("img_bgr", img_bgr)
         cv2.imshow("b", b)
@@ -73,7 +73,7 @@ class Lane_sub:
     # h, s, v
     def cam_CB(self, msg):
         print("asd")
-        img = cv2.bridge.compressed_imgmsg_to_cv2(msg)
+        img = self.bridge.compressed_imgmsg_to_cv2(msg)
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(img_hsv)
         cv2.imshow("h", h)
@@ -90,7 +90,7 @@ class Lane_sub:
     
     '''
     def cam_CB(self, msg):
-        img = cv2.bridge.compressed_imgmsg_to_cv2(msg)
+        img = self.bridge.compressed_imgmsg_to_cv2(msg)
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(img_hsv)
         
@@ -115,7 +115,7 @@ class Lane_sub:
     '''       
         
     def cam_CB(self, msg):
-        img = cv2.bridge.compressed_imgmsg_to_cv2(msg)
+        img = self.bridge.compressed_imgmsg_to_cv2(msg)
         y, x = img.shape[0:2]
         img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(img_hsv)
@@ -146,8 +146,8 @@ class Lane_sub:
         dst_points = np.float32([dst_point1, dst_point2, dst_point3, dst_point4])
         
         matrix = cv2.getPerspectiveTransform(src_points, dst_points)
-        warped_img = cv2.warpPerspective(filtered_img, matrix, [x, y])
-        grayed_img = cv2.cvtColor(warped_img, cv2.COLOR_BRG2GRAY)
+        warped_img = cv2.warpPerspective(filtered_img, matrix, (x, y))
+        grayed_img = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
         bin_img = np.zeros_like(warped_img)
         bin_img[grayed_img > 50] = 255   # 1
         
