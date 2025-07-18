@@ -12,8 +12,7 @@ class Turtle_sub:
         rospy.Subscriber("/lidar2D", LaserScan, self.lidar_CB)
         self.image_msg = LaserScan()
         
-        
-    def lider_CB(self, msg):
+    def lidar_CB(self, msg):
         os.system("clear")
         self.scan_msg = msg
         degree_min = self.scan_msg.angle_min * 180/pi
@@ -28,6 +27,7 @@ class Turtle_sub:
         for index, value in enumerate(self.scan_msg.ranges):
             if -30 < degrees[index] < 30 and 0 < value < 1.5:
                 print(f"{index} : {degrees[index]}")
+        
         
 def main():
     try:
