@@ -7,6 +7,7 @@ from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float64
 from math import *
 
+
 class Turtle_sub:
     def __init__(self):
         rospy.init_node("sim_e_stop")
@@ -15,8 +16,7 @@ class Turtle_sub:
         self.image_msg = LaserScan()
         self.speed_msg = Float64()
         
-        
-    def lider_CB(self, msg):
+    def lidar_CB(self, msg):
         os.system("clear")
         self.scan_msg = msg
         degree_min = self.scan_msg.angle_min * 180/pi
