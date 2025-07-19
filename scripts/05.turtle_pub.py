@@ -21,7 +21,7 @@ def main():
         turtle_pub = Turtle_pub()
         while not rospy.is_shutdown():
             turtle_pub.func()
-    except rospy.ROSInterrupException:
+    except rospy.ROSInterruptException:
         pass
 
 if __name__ == "__main__":
