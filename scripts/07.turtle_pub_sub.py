@@ -9,7 +9,7 @@ class Turtle_sub:
     def __init__(self):
         rospy.init_node("turtle_pub_node")
         rospy.Subscriber("/turtle1/pose", Pose, self.turtle_pose_CB)
-        rospy.Subscriber("/turtle/color_sensor", Color, self, turtle_color_CB)
+        rospy.Subscriber("/turtle/color_sensor", Color, self.turtle_color_CB)
         self.pub = rospy.Publisher("/turtle1/cmd_vel", Twist, queue_size=1)
         self.cmd_msg = Twist()
         self.pose_msg = Pose()
@@ -56,7 +56,7 @@ def main():
         turtle_sub = Turtle_sub()
         while not rospy.is_shutdown():
             turtle_sub.func()
-    except rospy.ROSInterrupException:
+    except rospy.ROSInterruptException:
         pass
 
 if __name__ == "__main__":
