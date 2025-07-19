@@ -11,7 +11,7 @@ import numpy as np  # 영상 구조와 표현 방법
 
 class Lane_sub:
     def __init__(self):
-        rospy.init_node("land_sub_node")
+        rospy.init_node("lane_sub_node")
         rospy.Subscriber("/image_jpeg/compressed", CompressedImage, self.cam_CB)
         self.image_msg = CompressedImage()
         self.bridge = CvBridge()
@@ -23,7 +23,7 @@ class Lane_sub:
                     [0, 255, 128, 255, 0],
                     [255, 0, 128, 0, 255],
                     [0, 255, 128, 255, 0]], np.uint8)
-        cv2.nameWindow("grayscale", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("grayscale", cv2.WINDOW_NORMAL)
         cv2.imshow("grayscale", grayscale)
         cv2.waitKey(1)
         
@@ -49,7 +49,7 @@ class Lane_sub:
         y, x = image.shape[0:2]
         print(y, x)
         print(image.shape)
-        cv2.nameWindow("image", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("image", cv2.WINDOW_NORMAL)
         cv2.imshow("image", image)
         cv2.waitKey(1)    
     '''
@@ -58,7 +58,7 @@ class Lane_sub:
     # 이미지 입출력
     def cam_CB(self, msg):
         img = cv2.imread("image_file.jpg", cv2.IMREAD_COLOR)
-        cv2.nameWindow("img", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
         cv2.imshow("img", img)
         key = cv2.waitKey(0)
         cv2.imwrite("image_file_gray.jpg", img)
@@ -73,7 +73,7 @@ class Lane_sub:
     '''
     # 도형 그리기
     def cam_CB(self, msg):
-        zero = np.zeros([480, 640, 3], np.unit8)
+        zero = np.zeros([480, 640, 3], np.uint8)
         cv2.line(zero, [240, 320], [240, 320], [0, 0, 255], 3)
         cv2.rectangle(zero, [120, 160], [280, 320], [255, 0, 0], -1)
         y, x, _ = zero.shape
