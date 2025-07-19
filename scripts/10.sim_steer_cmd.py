@@ -17,7 +17,7 @@ class Turtle_sub:
         # self.steer += 1
         # self.steer = self.steer % 19.5
         # self.cmd_msg.data = ((self.steer / 19.5) + 1) / 2
-        self.steer += 0.0
+        self.steer += 0.0   # 0.1 등 증가시키기
         if self.steer >= 1:
             self.steer = 1
         self.cmd_msg.data = self.steer
@@ -31,7 +31,7 @@ def main():
         turtle_sub = Turtle_sub()
         while not rospy.is_shutdown():
             turtle_sub.func()
-    except rospy.ROSInterrupException:
+    except rospy.ROSInterruptException:
         pass
 
 if __name__ == "__main__":
