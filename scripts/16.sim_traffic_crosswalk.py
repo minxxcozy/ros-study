@@ -10,7 +10,6 @@ from cv_bridge import CvBridge
 import numpy as np
 from time import *
 
-# 5일차 1:22:00 확률 허프 변환 이전까지 진행된 내용입니다.
 
 class Traffic_control:
     def __init__(self):
@@ -28,6 +27,8 @@ class Traffic_control:
         self.prev_signal = 0
         self.signal = 0
         self.cross_flag = 0
+        self.img = []
+        self.center_index, self.standard_line, self.degree_per_pixel = 0
         
     def traffic_CB(self, msg):
         self.traffic_msg = msg
@@ -60,15 +61,16 @@ class Traffic_control:
     
     def cam_CB(self, msg):
         self.img = self.bridge.compressed_imgmsg_to_cv2(msg)
-        first_time = time()
-        self.cam_lane_detection()
-        second_time = time()
-        # print(f"diffrent:{second_time - first_time}")
+        # self.cam_lane_detection()
+        self.warped_img, self.center_index, self.standard_line, self.degree_per_pixel = self.cam_lane_detection()
         
     def cam_lane_detection(self):
         y, x = self.img.shape[0:2]
         img_hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(img_hsv)
+        cv2.imshow("h", h)
+        cv2.imshow("s", s)
+        cv2.imshow("v", v)
         
         yellow_lower = np.array([15, 128, 0])
         yellow_upper = np.array([40, 255, 255])
@@ -95,19 +97,41 @@ class Traffic_control:
         dst_points = np.float32([dst_point1, dst_point2, dst_point3, dst_point4])
         
         matrix = cv2.getPerspectiveTransform(src_points, dst_points)
-        warped_img = cv2.warpPerspective(filtered_img, matrix, (x, y))
+        warped_img = cv2.warpPerspective(filtered_img, matrix, [x, y])
         grayed_img = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
         bin_img = np.zeros_like(warped_img)
         bin_img[grayed_img > 50] = 255   # 1
-        histogram = np.sum(bin_img, axis=0)
+        histogram_x = np.sum(bin_img, axis=0)
+        histogram_y = np.sum(bin_img, axis=1)
         
-        left_hist = histogram[0 : x // 2]
-        right_hist = histogram[x // 2 :]
+        left_hist = histogram_x[0 : x // 2]
+        right_hist = histogram_x[x // 2 :]
+        up_hist = histogram_y[0 : y // 4 * 3]
+        down_hist = histogram_y[y // 4 * 3 :]
         
         left_indices = np.where(left_hist > 20)[0]
         right_indices = np.where(right_hist > 20)[0] + 320
-        indices = np.where(histogram > 20)[0]
         
+        cross_indices = np.where(down_hist > 480)[0] + 240
+        print(histogram_y)
+        
+        # first_time = time()
+        try:
+            cross_threshold = 25
+            cross_diff = cross_indices[-1] - cross_indices[0]
+            if cross_threshold < cross_diff:
+                self.cross_flag = True
+                cv2.rectangle(warped_img, [0, cross_indices[0]], [x, cross_indices[-1]], [0, 255, 0], 3)
+            else:
+                self.cross_flag = False
+        except:
+            self.cross_flag = False
+        # second_time = time()
+        # print(f"diffrent: {second_time - first_time}")
+        
+        indices = np.where(histogram_y > 20)[0]
+        
+        '''
         try:
             if left_indices == 0 and right_indices == 0 :
                 center_index = x // 2
@@ -124,7 +148,22 @@ class Traffic_control:
         except:
             center_index = x // 2
             print("no_line")
+        '''
+            
+        try:
+            if len(left_indices) != 0 and len(right_indices) != 0:
+                center_index = (indices[0] + indices[-1]) // 2
+                # print("no_line")
+            elif len(left_indices) != 0 and len(right_indices) == 0:
+                center_index = (left_indices[0] + left_indices[-1]) // 2
+                # print("left_line")
+            elif len(left_indices) == 0 and len(right_indices) != 0:
+                center_index = (right_indices[0] + right_indices[-1]) // 2
+                # print("right_line")
+        except:
+            center_index = x // 2
         
+        '''
         # 허프 선 변환
         canny_img = cv2.Canny(bin_img, 2, 2)
         first_time = time()
@@ -140,13 +179,17 @@ class Traffic_control:
             pass
         second_time = time()
         # print(f"diffrent:{second_time - first_time}")
+        '''
         
         standard_line = x // 2
         degree_per_pixel = 1 / x
+        
+        return warped_img, center_index, standard_line, degree_per_pixel
+        '''
+        # [1]
         steer = (center_index - standard_line) * degree_per_pixel
         steer = 0.5 + steer    
-        # print(f"steer : {steer}")
-
+        
         self.steer_msg.data = steer
         self.speed_msg.data = 1000
         
@@ -157,12 +200,35 @@ class Traffic_control:
         cv2.imshow("img", self.img)
         cv2.imshow("warped_img", warped_img)
         cv2.waitKey(1)  
+        '''    
+        
+    # [2]
+    def action(self):
+        if len(self.img) != 0:
+            if self.cross_flag == True and self.signal == 1:
+                speed = 0
+                steer = 0.5
+            else:
+                speed = 1000
+                steer = (self.center_index - self.standard_line) * self.degree_per_pixel
+                steer = 0.5 + steer    
+        
+            self.steer_msg.data = steer
+            self.speed_msg.data = speed
+        
+            self.steer_pub.publish(self.steer_msg)
+            self.speed_pub.publish(self.speed_msg)
+
+            cv2.imshow("img", self.img)
+            cv2.imshow("warped_img", self.warped_img)
+            cv2.waitKey(1)
             
     
 def main():
     try:
         traffic_control = Traffic_control()
-        rospy.spin()
+        while not rospy.is_shutdown():
+            traffic_control.action()
         
     except rospy.ROSInterruptException:
         pass
