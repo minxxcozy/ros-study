@@ -56,8 +56,9 @@ class Lane_sub:
         matrix = cv2.getPerspectiveTransform(src_points, dst_points)
         warped_img = cv2.warpPerspective(filtered_img, matrix, (x, y))
         grayed_img = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
-        bin_img = np.zeros_like(warped_img)
-        bin_img[grayed_img > 50] = 255   # 1
+        _, bin_img = cv2.threshold(grayed_img, 50, 255, cv2.THRESH_BINARY)
+        # bin_img = np.zeros_like(warped_img)
+        # bin_img[grayed_img > 50] = 255   # 1
         histogram = np.sum(bin_img, axis=0)
         
         left_hist = histogram[0 : x // 2]
