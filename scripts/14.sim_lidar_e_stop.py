@@ -13,7 +13,7 @@ class Turtle_sub:
         rospy.init_node("sim_e_stop")
         self.pub = rospy.Publisher("/commands/motor/speed", Float64, queue_size=1)
         rospy.Subscriber("/lidar2D", LaserScan, self.lidar_CB)
-        self.image_msg = LaserScan()
+        self.scan_msg = LaserScan()
         self.speed_msg = Float64()
         
     def lidar_CB(self, msg):
