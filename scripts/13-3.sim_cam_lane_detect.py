@@ -91,7 +91,7 @@ class Lane_sub:
         # 허프 선 변환
         canny_img = cv2.Canny(bin_img, 2, 2)
         cv2.imshow("canny_img", canny_img)
-        lines = cv2.HoughLinesP(bin_img, 1, np.pi/180, None, 90, 50, 5)
+        lines = cv2.HoughLinesP(canny_img, 0.01, np.pi/180, 90, 50, 5)
         try:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
