@@ -10,7 +10,7 @@ class Turtle_sub:
     def __init__(self):
         rospy.init_node("turtle_sub_node")
         rospy.Subscriber("/lidar2D", LaserScan, self.lidar_CB)
-        self.image_msg = LaserScan()
+        self.scan_msg = LaserScan()
         
     def lidar_CB(self, msg):
         os.system("clear")
